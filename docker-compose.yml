@@ -6,7 +6,7 @@ services:
 
   # Zookeeper service configuration
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: 'bitnami/zookeeper:3.9'
     ports:
       - '2181:2181'
     environment:
@@ -16,7 +16,7 @@ services:
 
   # Kafka service configuration
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.6'
     user: root
     ports:
       - '9092:9092'
