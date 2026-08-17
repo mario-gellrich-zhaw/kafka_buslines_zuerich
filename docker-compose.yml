@@ -6,7 +6,7 @@ services:
 
   # Zookeeper service configuration
   zookeeper:
-    image: 'bitnami/zookeeper:3.9'
+    image: 'soldevelo/zookeeper:3.9'
     ports:
       - '2181:2181'
     environment:
