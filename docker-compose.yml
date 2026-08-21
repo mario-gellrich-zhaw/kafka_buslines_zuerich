@@ -6,29 +6,29 @@ services:
 
   # Zookeeper service configuration
   zookeeper:
-    image: 'bitnami/zookeeper:3.9'
+    image: 'confluentinc/cp-zookeeper:7.6.1'
     ports:
       - '2181:2181'
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
     networks:
       - myNetwork
 
   # Kafka service configuration
   kafka:
-    image: 'bitnami/kafka:3.6'
-    user: root
+    image: 'confluentinc/cp-kafka:7.6.1'
     ports:
       - '9092:9092'
     environment:
       - KAFKA_BROKER_ID=1
-      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CREATE_TOPICS=busdata001:1:1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     volumes:
-      - ./Kafka:/bitnami/kafka
+      - ./Kafka:/var/lib/kafka/data
     networks:
       - myNetwork
     depends_on:
