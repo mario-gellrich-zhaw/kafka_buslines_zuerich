@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zürich Bus Live Map</title>
+
     <!-- LEAFLET -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
       integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
@@ -10,14 +13,82 @@
       integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
       crossorigin=""></script>
     <!-- END LEAFLET -->
-    <title>Zürich Bus Live Map</title>
+
+    <link rel="stylesheet" href="../static/style.css">
   </head>
   <body>
-    <h1>Zürich Bus Live Map</h1>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">🚌</div>
+        <div>
+          <h1>Zürich Bus Live Map</h1>
+          <p>Real-time vehicle positions streamed through Apache Kafka</p>
+        </div>
+      </div>
+      <div class="conn-badge">
+        <span class="conn-dot" id="conn-dot"></span>
+        <span id="conn-label">Connecting…</span>
+      </div>
+    </header>
 
-    <!-- LEAFLET -->
-    <div id="mapid" style = "width:900px; height:580px;"></div>
+    <div class="layout">
+      <aside>
+        <div class="card">
+          <h2>About</h2>
+          <p>This app simulates three Zürich bus lines. Each line publishes GPS
+            checkpoints to a Kafka topic every 500&nbsp;ms, and the map below
+            updates live as new positions arrive over a server-sent event stream.</p>
+        </div>
+
+        <div class="card">
+          <h2>Data pipeline</h2>
+          <div class="pipeline">
+            <div class="pipeline-step"><span class="num">1</span> 3 Python producers generate coordinates</div>
+            <div class="pipeline-arrow">↓</div>
+            <div class="pipeline-step"><span class="num">2</span> Kafka topic <code>busdata001</code></div>
+            <div class="pipeline-arrow">↓</div>
+            <div class="pipeline-step"><span class="num">3</span> Flask consumer</div>
+            <div class="pipeline-arrow">↓</div>
+            <div class="pipeline-step"><span class="num">4</span> Leaflet map, live in browser</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Bus lines</h2>
+          <div id="legend">
+            <div class="legend-item">
+              <span class="legend-swatch" style="background:#ff5c5c"></span>
+              <div class="legend-info">
+                <div class="name">Line 00001</div>
+                <div class="meta" id="meta-00001">waiting for data…</div>
+              </div>
+              <span class="legend-count" id="count-00001">0</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background:#ffc857"></span>
+              <div class="legend-info">
+                <div class="name">Line 00002</div>
+                <div class="meta" id="meta-00002">waiting for data…</div>
+              </div>
+              <span class="legend-count" id="count-00002">0</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background:#4fd18b"></span>
+              <div class="legend-info">
+                <div class="name">Line 00003</div>
+                <div class="meta" id="meta-00003">waiting for data…</div>
+              </div>
+              <span class="legend-count" id="count-00003">0</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="card map-card">
+        <div id="mapid"></div>
+      </div>
+    </div>
+
     <script src="../static/leaf.js"></script>
-    <!-- END LEAFLET -->
   </body>
 </html>

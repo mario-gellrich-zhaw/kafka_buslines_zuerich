@@ -2,6 +2,11 @@
 networks:
   myNetwork:
 
+# Named volume for Kafka broker data (avoids host bind-mount permission
+# issues, since the image's data dir is owned by uid 1000, not root)
+volumes:
+  kafka_data:
+
 services:
 
   # Zookeeper service configuration
@@ -28,7 +33,7 @@ services:
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     volumes:
-      - ./Kafka:/var/lib/kafka/data
+      - kafka_data:/var/lib/kafka/data
     networks:
       - myNetwork
     depends_on:
