@@ -1,9 +1,12 @@
 var mymap = L.map('mapid').setView([47.37128, 8.54161], 13);
 
-// Use free OpenStreetMap tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// tile.openstreetmap.org actively blocks apps running from shared-IP dev
+// environments like Codespaces (see osm.wiki/Blocked), so use CARTO's free
+// basemap tiles instead, which permit this kind of use.
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    subdomains: 'abcd',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 }).addTo(mymap);
 
 // Leaflet measures its container on init; if the CSS grid layout hasn't

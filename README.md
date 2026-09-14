@@ -44,44 +44,41 @@ Kafka_Buslines_Zuerich
 The file 'docker-compose.yml' contains:  
 
 ```bash
-# Define custom networks
-networks:
-  myNetwork:
+# Named volume for Kafka broker data (avoids host bind-mount permission
+# issues, since the image's data dir is owned by uid 1000, not root)
+volumes:
+  kafka_data:
 
 services:
 
   # Zookeeper service configuration
   zookeeper:
     image: 'confluentinc/cp-zookeeper:7.6.1'
-    ports:
-      - '2181:2181'
+    network_mode: host
     environment:
       - ZOOKEEPER_CLIENT_PORT=2181
       - ZOOKEEPER_TICK_TIME=2000
-    networks:
-      - myNetwork
 
   # Kafka service configuration
   kafka:
     image: 'confluentinc/cp-kafka:7.6.1'
-    ports:
-      - '9092:9092'
+    network_mode: host
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ZOOKEEPER_CONNECT=localhost:2181
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     volumes:
-      - ./Kafka:/var/lib/kafka/data
-    networks:
-      - myNetwork
+      - kafka_data:/var/lib/kafka/data
     depends_on:
       - zookeeper
 ```
 
 > **Note:** The images were switched from Bitnami's Docker Hub images (`bitnami/zookeeper`, `bitnami/kafka`), which were pulled from Docker Hub and are no longer available there, to Confluent's actively maintained images (`confluentinc/cp-zookeeper`, `confluentinc/cp-kafka`). Topics are now created automatically on first use (`KAFKA_AUTO_CREATE_TOPICS_ENABLE=true`) instead of via the Bitnami-specific `KAFKA_CREATE_TOPICS` variable.
+
+> **Note:** Both services run with `network_mode: host` instead of a custom Docker bridge network. Some Codespaces/devcontainer environments enforce a legacy iptables `FORWARD` policy of `DROP` without the `ACCEPT` rules custom bridge networks need, which silently drops all container-to-container traffic and makes the `kafka` container time out waiting for `zookeeper`. Host networking sidesteps that bridge entirely.
 
 ## Executing Docker Compose
 

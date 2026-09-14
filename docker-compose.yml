@@ -1,7 +1,3 @@
-# Define custom networks
-networks:
-  myNetwork:
-
 # Named volume for Kafka broker data (avoids host bind-mount permission
 # issues, since the image's data dir is owned by uid 1000, not root)
 volumes:
@@ -12,29 +8,29 @@ services:
   # Zookeeper service configuration
   zookeeper:
     image: 'confluentinc/cp-zookeeper:7.6.1'
-    ports:
-      - '2181:2181'
+    # Host networking instead of a custom bridge network: some Codespaces/
+    # devcontainer environments enforce a legacy iptables FORWARD policy of
+    # DROP without the ACCEPT rules custom Docker bridge networks need, which
+    # silently drops all container-to-container traffic (containers can still
+    # resolve each other's DNS name, they just can't reach each other). Host
+    # networking sidesteps the bridge entirely.
+    network_mode: host
     environment:
       - ZOOKEEPER_CLIENT_PORT=2181
       - ZOOKEEPER_TICK_TIME=2000
-    networks:
-      - myNetwork
 
   # Kafka service configuration
   kafka:
     image: 'confluentinc/cp-kafka:7.6.1'
-    ports:
-      - '9092:9092'
+    network_mode: host
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ZOOKEEPER_CONNECT=localhost:2181
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     volumes:
       - kafka_data:/var/lib/kafka/data
-    networks:
-      - myNetwork
     depends_on:
       - zookeeper
