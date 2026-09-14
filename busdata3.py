@@ -1,6 +1,6 @@
 from pykafka import KafkaClient
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 import time
 
@@ -26,7 +26,7 @@ def generate_checkpoint(coordinates):
     i = 0
     while i < len(coordinates):
         data['key'] = data['busline'] + '_' + str(generate_uuid())
-        data['timestamp'] = str(datetime.utcnow())
+        data['timestamp'] = str(datetime.now(UTC).replace(tzinfo=None))
         data['latitude'] = coordinates[i][1]
         data['longitude'] = coordinates[i][0]
         message = json.dumps(data)
